@@ -11,14 +11,14 @@ import '../../model/FocusModel.dart';
 
 class HomePage extends StatefulWidget {
   Map arguments;
-  HomePage({Key key,this.arguments}) : super(key: key);
+
+  HomePage({Key key, this.arguments}) : super(key: key);
 
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
-
-  
+class _HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin {
   List _focusData = [];
   List _hotProductList = [];
   List _bestProductList = [];
@@ -59,7 +59,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
   _getBestProductData() async {
     var api = '${Config.domain}api/plist?is_best=1';
     var result = await Dio().get(api);
-    var bestProductList = ProductModel.fromJson(result.data);    
+    var bestProductList = ProductModel.fromJson(result.data);
     setState(() {
       this._bestProductList = bestProductList.result;
     });
@@ -81,8 +81,14 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
                 );
               },
               itemCount: this._focusData.length,
-              pagination: new SwiperPagination(),
-              autoplay: true),
+              pagination: SwiperPagination(
+                  builder: DotSwiperPaginationBuilder(
+                      color: Color.fromRGBO(200, 200, 200, 0.5),
+                      size: 8.0,
+                      activeSize: 10.0),
+              ),
+              autoplay: true,
+          ),
         ),
       );
     } else {
@@ -99,7 +105,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
           border: Border(
               left: BorderSide(
         color: Colors.red,
-        width:10.w,
+        width: 10.w,
       ))),
       child: Text(
         value,
@@ -107,12 +113,13 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
       ),
     );
   }
+
   //热门商品
 
   Widget _hotProductListWidget() {
     if (this._hotProductList.length > 0) {
       return GestureDetector(
-        onTap: (){
+        onTap: () {
           // Navigator.pushNamed(context, '/productList');
           print("tap home page like item");
         },
@@ -121,7 +128,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
           padding: EdgeInsets.all(20.w),
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemBuilder: (contxt, index) {
+            itemBuilder: (content, index) {
               //处理图片
               String sPic = this._hotProductList[index].sPic;
               sPic = Config.domain + sPic.replaceAll('\\', '/');
@@ -156,9 +163,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
 
   //推荐商品
   Widget _recProductListWidget() {
-    var itemWidth = (1.sw- 50.w) / 2;
+    var itemWidth = (1.sw - 50.w) / 2;
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         // Navigator.pushNamed(context, '/productList');
         print("tap home page recomment item");
       },
@@ -168,10 +175,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
           runSpacing: 10,
           spacing: 10,
           children: this._bestProductList.map((value) {
-
             //图片
-            String sPic=value.sPic;
-            sPic=Config.domain+sPic.replaceAll('\\', '/');
+            String sPic = value.sPic;
+            sPic = Config.domain + sPic.replaceAll('\\', '/');
 
             return Container(
               padding: EdgeInsets.all(10.w),
@@ -209,13 +215,14 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
                           alignment: Alignment.centerLeft,
                           child: Text(
                             "¥${value.price}",
-                            style: TextStyle(color: Colors.red,
+                            style: TextStyle(
+                              color: Colors.red,
                             ),
                           ),
                         ),
                         Align(
                           alignment: Alignment.centerRight,
-                          child: Text( "¥${value.oldPrice}",
+                          child: Text("¥${value.oldPrice}",
                               style: TextStyle(
                                   color: Colors.black54,
                                   decoration: TextDecoration.lineThrough)),
@@ -248,6 +255,4 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
       ),
     );
   }
-
-
 }
