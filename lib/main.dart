@@ -1,36 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_jdshop/routers/router.dart';
-import 'dart:io';
 
+import './routers/router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
-
+// 入口
 void main() {
-  //初始化
-  WidgetsFlutterBinding.ensureInitialized();
-  //强制竖屏
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-      .then((_) => runApp(MyApp()));
-  if (Platform.isAndroid) {
-    SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent, // 设置为透明
-    );
-    SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
-  }
+  runApp(new MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  MyApp({Key key}) : super(key: key);
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  // 入口
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
+      //屏幕适配
       designSize: Size(750, 1334),
-      builder: () => GetMaterialApp(
+      allowFontScaling: false,
+      builder: () => MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: "Flutter Demo",
-        theme: ThemeData(primaryColor: Colors.white),
-        initialRoute: '/tabs',
-        onGenerateRoute:onGenerateRoute
+        //根目录
+        initialRoute: '/',
+        onGenerateRoute: onGenerateRoute,
+        //主题
+        theme: ThemeData(
+          primaryColor: Colors.white,
+        ),
       ),
     );
   }

@@ -25,19 +25,19 @@ class ProductItemModel {
   String sId;
   String title;
   String cid;
-  Object price;   //所有的类型都继承 Object
+  Object price; //所有的类型都继承 Object
   String oldPrice;
   String pic;
   String sPic;
 
   ProductItemModel(
-      {this.sId,
+      {this.sId, // _id
       this.title,
       this.cid,
       this.price,
-      this.oldPrice,
+      this.oldPrice, // old_price
       this.pic,
-      this.sPic});
+      this.sPic}); // s_pic
 
   ProductItemModel.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];

@@ -1,258 +1,258 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import '../../model/ProductModel.dart';
+
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../config/Config.dart';
+import '../../services/ScreenAdapter.dart';
+import 'dart:convert';
 import 'package:dio/dio.dart';
-
-//轮播图类模型
 import '../../model/FocusModel.dart';
+import '../../model/ProductModel.dart';
 
 class HomePage extends StatefulWidget {
-  Map arguments;
+  HomePage({Key key}) : super(key: key);
 
-  HomePage({Key key, this.arguments}) : super(key: key);
-
+  @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage>
     with AutomaticKeepAliveClientMixin {
-  List _focusData = [];
-  List _hotProductList = [];
-  List _bestProductList = [];
+  List<FocusItemModel> focusData = [];
+  List<ProductItemModel> guessYouLikeData = []; // 0-1->2 so easy
+  List<ProductItemModel> hotRecommendData = [];
 
-  @override
-  // TODO: implement wantKeepAlive
-  bool get wantKeepAlive => true;
-
-  @override
   void initState() {
-    super.initState();
-    _getFocusData();
-    _getHotProductData();
-    _getBestProductData();
+    print("-----------------HomePageState =>initState--------------------");
+    //生命周期方法：组件创建的时候会回调initState方法
+    //dio
+    getFocusData();
+    getGuessYouLikeData();
+    getHotRecommendData();
   }
 
   //获取轮播图数据
-  _getFocusData() async {
-    var api = '${Config.domain}api/focus';
-    var result = await Dio().get(api);
-    var focusList = FocusModel.fromJson(result.data);
+  void getFocusData() async {
+    //同步 异步
+    var response = await Dio().get("http://jd.itying.com/api/focus");
+    FocusModel focusModel = FocusModel.fromJson(response.data);
     setState(() {
-      this._focusData = focusList.result;
+      this.focusData = focusModel.result;
     });
+    //print(this.focusData);
   }
 
-  //获取猜你喜欢的数据
-  _getHotProductData() async {
-    var api = '${Config.domain}api/plist?is_hot=1';
-    var result = await Dio().get(api);
-    var hotProductList = ProductModel.fromJson(result.data);
+  //获取猜你喜欢数据
+  void getGuessYouLikeData() async {
+    //同步 异步
+    var response = await Dio().get("http://jd.itying.com/api/plist?is_hot=1");
+    ProductModel productModel = ProductModel.fromJson(response.data); // MVC
     setState(() {
-      this._hotProductList = hotProductList.result;
+      this.guessYouLikeData = productModel.result;
     });
+    //print(this.guessYouLikeData);
   }
 
-  //获取热门推荐的数据
-  _getBestProductData() async {
-    var api = '${Config.domain}api/plist?is_best=1';
-    var result = await Dio().get(api);
-    var bestProductList = ProductModel.fromJson(result.data);
+  //获取热门推荐数据
+  void getHotRecommendData() async {
+    var response = await Dio().get("http://jd.itying.com/api/plist?is_best=1");
+    ProductModel productModel = ProductModel.fromJson(response.data);
     setState(() {
-      this._bestProductList = bestProductList.result;
+      this.hotRecommendData = productModel.result;
     });
+    print(this.hotRecommendData);
   }
 
-  //轮播图
   Widget _swiperWidget() {
-    if (this._focusData.length > 0) {
+    if (this.focusData.length > 0) {
+      //轮播图
       return Container(
         child: AspectRatio(
           aspectRatio: 2 / 1,
           child: Swiper(
-              itemBuilder: (BuildContext context, int index) {
-                String pic = this._focusData[index].pic;
-                pic = Config.domain + pic.replaceAll('\\', '/');
-                return new Image.network(
-                  "${pic}",
-                  fit: BoxFit.fill,
-                );
-              },
-              itemCount: this._focusData.length,
-              pagination: SwiperPagination(
-                  builder: DotSwiperPaginationBuilder(
-                      color: Color.fromRGBO(200, 200, 200, 0.5),
-                      size: 8.0,
-                      activeSize: 10.0),
-              ),
-              autoplay: true,
+            autoplay: false,
+            itemCount: this.focusData.length,
+            itemBuilder: (BuildContext context, int index) {
+              //http://jd.itying.com/public//upload//UObZahqPYzFvx_C9CQjU8KiX.png
+              //http://jd.itying.com/public\upload\s5ujmYBQVRcLuvBHvWFMJHzS.jpg
+              String picStr = this.focusData[index].pic;
+              picStr = "http://jd.itying.com/" + picStr.replaceAll('\\', '/');
+              //print(picStr);
+              return new Image.network(
+                "${picStr}",
+                fit: BoxFit.fill,
+              );
+            },
+            pagination: new SwiperPagination(),
+            control: new SwiperControl(),
           ),
         ),
       );
     } else {
-      return Text('加载中...');
+      return Text("数据加载中...");
     }
   }
 
   Widget _titleWidget(value) {
     return Container(
-      height: 40.h,
-      margin: EdgeInsets.only(left: 20.w),
-      padding: EdgeInsets.only(left: 20.w),
-      decoration: BoxDecoration(
-          border: Border(
-              left: BorderSide(
-        color: Colors.red,
-        width: 10.w,
-      ))),
+      margin: EdgeInsets.only(left: ScreenAdapter.width(20)),
+      padding: EdgeInsets.only(left: ScreenAdapter.width(12)),
+      height: ScreenAdapter.height(32),
       child: Text(
-        value,
-        style: TextStyle(color: Colors.black54),
+        "${value}",
+        style: TextStyle(
+          color: Colors.black54,
+        ),
+      ),
+      decoration: BoxDecoration(
+        border: Border(
+          left: BorderSide(
+            color: Colors.red,
+            width: ScreenAdapter.width(10),
+          ),
+        ),
       ),
     );
   }
 
-  //热门商品
-
-  Widget _hotProductListWidget() {
-    if (this._hotProductList.length > 0) {
-      return GestureDetector(
-        onTap: () {
-          // Navigator.pushNamed(context, '/productList');
-          print("tap home page like item");
-        },
-        child: Container(
-          height: 234.h,
-          padding: EdgeInsets.all(20.w),
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (content, index) {
-              //处理图片
-              String sPic = this._hotProductList[index].sPic;
-              sPic = Config.domain + sPic.replaceAll('\\', '/');
-
-              return Column(
-                children: <Widget>[
-                  Container(
-                    height: 140.h,
-                    width: 140.w,
-                    margin: EdgeInsets.only(right: 21.w),
-                    child: Image.network(sPic, fit: BoxFit.cover),
+  //猜你喜欢界面
+  Widget _guessYouLike() {
+    return Container(
+      padding: EdgeInsets.only(left: ScreenAdapter.width(10)),
+      height: ScreenAdapter.height(200),
+      child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: this.guessYouLikeData.length,
+          itemBuilder: (BuildContext context, int index) {
+            String picStr = this.guessYouLikeData[index].sPic;
+            picStr = "http://jd.itying.com/" + picStr.replaceAll('\\', '/');
+            //print(picStr);
+            return Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.only(right: ScreenAdapter.width(10)),
+                  width: ScreenAdapter.width(155),
+                  height: ScreenAdapter.height(155),
+                  child: Image.network(
+                    "${picStr}",
+                    fit: BoxFit.cover,
                   ),
-                  Container(
-                    padding: EdgeInsets.only(top: 10.h),
-                    height: 44.h,
-                    child: Text(
-                      "¥${this._hotProductList[index].price}",
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  )
-                ],
-              );
-            },
-            itemCount: this._hotProductList.length,
-          ),
-        ),
-      );
-    } else {
-      return Text("");
-    }
+                ),
+                Text("第${index + 1}条"),
+              ],
+            );
+          }),
+    );
   }
 
-  //推荐商品
-  Widget _recProductListWidget() {
-    var itemWidth = (1.sw - 50.w) / 2;
-    return GestureDetector(
-      onTap: () {
-        // Navigator.pushNamed(context, '/productList');
-        print("tap home page recomment item");
-      },
-      child: Container(
-        padding: EdgeInsets.all(10.w),
+//热门推荐的界面
+  Widget _hotRecommend() {
+    if (this.hotRecommendData.length > 0) {
+      //Wrap中每一个Container的宽需要？
+      double itemWidth = (ScreenAdapter.screenWidth() - 30) / 2;
+      return Container(
+        padding: EdgeInsets.all(10),
+        width: double.infinity,
         child: Wrap(
+          // 流布局
           runSpacing: 10,
           spacing: 10,
-          children: this._bestProductList.map((value) {
-            //图片
-            String sPic = value.sPic;
-            sPic = Config.domain + sPic.replaceAll('\\', '/');
-
+          children: this.hotRecommendData.map((currentElement) {
+            String pic = currentElement.pic;
+            pic = "http://jd.itying.com/" + pic.replaceAll('\\', '/');
+            //print(pic); //http://jd.itying.com/public/upload/KqOpb7U4Exk-K3OmNweMkTNS.png_200x200.png
             return Container(
-              padding: EdgeInsets.all(10.w),
-              width: itemWidth,
+              padding: EdgeInsets.all(5),
               decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Color.fromRGBO(233, 233, 233, 0.9), width: 1.w)),
+                border: Border.all(
+                  color: Color.fromRGBO(233, 233, 233, 0.9),
+                  width: 1,
+                ),
+              ),
+              width: itemWidth,
               child: Column(
-                children: <Widget>[
+                children: [
                   Container(
                     width: double.infinity,
                     child: AspectRatio(
-                      //防止服务器返回的图片大小不一致导致高度不一致问题
                       aspectRatio: 1 / 1,
                       child: Image.network(
-                        "${sPic}",
+                        "${pic}",
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(top: 20.h),
+                    padding: EdgeInsets.all(5),
                     child: Text(
-                      "${value.title}",
+                      "${currentElement.title}",
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.black54),
+                      style: TextStyle(
+                        color: Colors.black54,
+                      ),
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(top: 20.h),
+                    padding: EdgeInsets.all(5),
                     child: Stack(
-                      children: <Widget>[
+                      children: [
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            "¥${value.price}",
+                            "¥${currentElement.price}",
                             style: TextStyle(
                               color: Colors.red,
+                              fontSize: 18,
                             ),
                           ),
                         ),
                         Align(
                           alignment: Alignment.centerRight,
-                          child: Text("¥${value.oldPrice}",
+                          child: Text("¥${currentElement.oldPrice}",
                               style: TextStyle(
-                                  color: Colors.black54,
-                                  decoration: TextDecoration.lineThrough)),
-                        )
+                                color: Colors.black54,
+                                fontSize: 16,
+                                decoration: TextDecoration.lineThrough,
+                              )),
+                        ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             );
           }).toList(),
         ),
-      ),
-    );
+      );
+    } else {
+      return Text("数据加载中...");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ListView(
-        children: <Widget>[
-          _swiperWidget(),
-          SizedBox(height: 20.h),
-          _titleWidget("猜你喜欢"),
-          SizedBox(height: 20.h),
-          _hotProductListWidget(),
-          _titleWidget("热门推荐"),
-          _recProductListWidget()
-        ],
-      ),
+    return ListView(
+      children: [
+        //轮播图
+        this._swiperWidget(),
+        SizedBox(
+          height: ScreenAdapter.height(10),
+        ),
+        //猜你喜欢
+        this._titleWidget("猜你喜欢"),
+        SizedBox(
+          height: ScreenAdapter.height(10),
+        ),
+        //猜你喜欢 水平滚动列表
+        this._guessYouLike(),
+
+        this._titleWidget("热门推荐"),
+        //热门推荐
+        this._hotRecommend(),
+      ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

@@ -1,4 +1,4 @@
-name: flutter_jdshop
+name: flutter_app
 description: A new Flutter application.
 
 # The following line prevents the package from being accidentally published to
@@ -27,24 +27,10 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  # 轮播图
+  cupertino_icons: ^1.0.0
   flutter_swiper: ^1.1.6
-  # 网络请求
+  flutter_screenutil: ^4.0.4+1
   dio: ^3.0.10
-  # 状态管理+路由
-  get: ^3.26.0
-  # SVG
-  flutter_svg: ^0.19.3
-  # 屏幕适配
-  flutter_screenutil: ^4.0.4
-  # 网络状态监测
-  connectivity: ^3.0.3
-  # 加载提示框
-  flutter_easyloading: ^3.0.0
-  # 权限申请
-  permission_handler: ^6.1.1
-  # 弹框提示
-  fluttertoast: 7.1.1
 
 dev_dependencies:
   flutter_test:

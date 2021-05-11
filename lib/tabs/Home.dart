@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_jdshop/model/FocusModel.dart';
-import 'package:flutter_jdshop/model/ProductModel.dart';
-import 'package:flutter_jdshop/services/ScreenAdapter.dart';
+import 'package:flutter_app/model/FocusModel.dart';
+import 'package:flutter_app/model/ProductModel.dart';
 
+import 'package:flutter_app/services/ScreenAdapter.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:dio/dio.dart';
 

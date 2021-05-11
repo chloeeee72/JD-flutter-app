@@ -1,80 +1,124 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'Home.dart';
-import 'Category.dart';
-import 'Cart.dart';
-import 'User.dart';
+
+import './Home.dart'; //首页
+import './Category.dart'; //分类页面
+import './User.dart';
+import '../../services/ScreenAdapter.dart';
 
 class Tabs extends StatefulWidget {
-  Map arguments;
-  Tabs({Key key,this.arguments}) : super(key: key);
+  Tabs({Key key}) : super(key: key);
 
+  @override
   _TabsState createState() => _TabsState();
 }
 
 class _TabsState extends State<Tabs> {
+  int _currentIndex = 0;
+  List<Widget> _pagesList = [HomePage(), CategoryPage(), UserPage()];
 
-  int _currentIndex=0;
-  PageController _pageController;
+  var _pageController;
+
   @override
-  void initState() { 
+  void initState() {
+    this._pageController = new PageController(initialPage: this._currentIndex);
     super.initState();
-    this._pageController=new PageController(initialPage:this._currentIndex );
   }
-
-  List<Widget> _pageList=[
-    HomePage(),
-    CategoryPage(),
-    CartPage(),
-    UserPage()
-  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 80.h,
-          backgroundColor: Colors.blue,
-          centerTitle: true,
-          title: Text("jdshop"),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(
+            Icons.center_focus_weak,
+            size: 28,
+            color: Colors.black87,
+          ),
+          onPressed: () {},
         ),
-        body: PageView(
-          controller: this._pageController,
-          children: this._pageList,
-          // onPageChanged: (){
-          //
-          // },
+        title: Container(
+          width: double.infinity,
+          height: ScreenAdapter.height(72),
+          decoration: BoxDecoration(
+            color: Color.fromRGBO(233, 233, 233, 0.9),
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: InkWell(
+            child: Row(
+              children: [
+                SizedBox(width: ScreenAdapter.width(20)),
+                Icon(
+                  Icons.search,
+                  size: 20,
+                ),
+                SizedBox(width: ScreenAdapter.width(10)),
+                Text(
+                  "笔记本",
+                  style: TextStyle(
+                    fontSize: ScreenAdapter.fontSize(28),
+                  ),
+                ),
+              ],
+            ),
+            onTap: (){
+              print("--------clicked-------");
+              //页面跳转 命名路由跳转
+              Navigator.pushNamed(context, '/search');
+            },
+          ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex:this._currentIndex ,
-          onTap: (index){
-              setState(() {
-                 this._currentIndex=index;
-                 this._pageController.jumpToPage(index);
-              });
-          },
-          type:BottomNavigationBarType.fixed ,
-          fixedColor:Colors.red,
-          items: [
-             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label:"首页"           
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: ScreenAdapter.width(10)),
+            child: IconButton(
+              icon: Icon(
+                Icons.message,
+                size: 28,
+                color: Colors.black87,
+              ),
+              onPressed: () {},
             ),
-             BottomNavigationBarItem(
-              icon: Icon(Icons.category),
-              label:"分类"             
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart),
-               label:"购物车"            
-            ),            
-            BottomNavigationBarItem(
-              icon: Icon(Icons.people),
-              label:"我的"
-            )
-          ],
-        ),     
-        
-      );
+          ),
+        ],
+      ),
+      //body: this._pagesList[this._currentIndex], //页面切换
+      body: IndexedStack(
+        //tab切换保持页面状态
+        children: this._pagesList,
+        index: this._currentIndex,
+      ),
+      // body:PageView(
+      //   controller: this._pageController,
+      //   children:this._pagesList,
+      //   onPageChanged: (index){
+      //     print("----onPageChanged: index=${index}---");
+      //   },
+      // ),
+      bottomNavigationBar: BottomNavigationBar(
+        fixedColor: Colors.red,
+        currentIndex: this._currentIndex,
+        onTap: (index) {
+          print("----onTap: index=${index}---");
+          setState(() {
+            this._currentIndex = index;
+            //this._pageController.jumpToPage(this._currentIndex);
+          });
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            title: Text("首页"),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.category),
+            title: Text("分类"),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            title: Text("设置"),
+          ),
+        ],
+      ),
+    );
   }
 }

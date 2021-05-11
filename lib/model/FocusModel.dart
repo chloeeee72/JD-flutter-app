@@ -21,7 +21,7 @@ class FocusModel {
 }
 
 class FocusItemModel {
-  String sId;
+  String sId; // _id=>sId
   String title;
   String status;
   String pic;
